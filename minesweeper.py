@@ -165,8 +165,8 @@ class MinesweeperAI():
         to mark that cell as a mine as well.
         """
         self.mines.add(cell)
-        for sentence in self.knowledge:
-            sentence.mark_mine(cell)
+        # for sentence in self.knowledge:
+        #     sentence.remove(cell)
 
     def mark_safe(self, cell):
         """
@@ -174,8 +174,8 @@ class MinesweeperAI():
         to mark that cell as safe as well.
         """
         self.safes.add(cell)
-        for sentence in self.knowledge:
-            sentence.mark_safe(cell)
+        # for sentence in self.knowledge:
+        #     sentence.remove(cell)
 
     def add_knowledge(self, cell, count):
         """
@@ -187,34 +187,43 @@ class MinesweeperAI():
             2) mark the cell as safe
             3) add a new sentence to the AI's knowledge base
                based on the value of `cell` and `count`
+        """
+        """ /TODO
             4) mark any additional cells as safe or as mines
                if it can be concluded based on the AI's knowledge base
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+        
         self.moves_made.add(cell)
-        self.mark_safe(cell)
+        # self.mark_safe(cell)
 
-        neigbor_cells = set((x, y)
-            for x in range(max(0, cell[0] - 1), min(8, cell[1] + 2))
-            for y in range(max(0, cell[0] - 1), min(8, cell[1] + 2))
-        ) - {cell} 
-        self.knowledge.append(Sentence(neigbor_cells, count))
+        neigbor_cells = set((x, y)  #/TODO to fix
+            for x in range(max(0, cell[0] - 1), min(8, cell[1] + 1))
+            for y in range(max(0, cell[0] - 1), min(8, cell[1] + 1))
+        ) - {cell}
+        print(f'neigbor_cells: {neigbor_cells}')
+        if neigbor_cells:
+            new_sentence = Sentence(neigbor_cells, count)
+            self.knowledge.append(new_sentence)
+        print(f'knowledge base after appending (length {len(self.knowledge)}):')
+        for sentence in self.knowledge:
+            print(sentence)
         
         print(f'count: {count}')
-        if count == 0:
-            for i in neigbor_cells:
-                if i not in self.safes:
-                    self.mark_safe(i)
-        print(f'safes: {self.safes}')
+        # if count == 0:
+        #     for i in neigbor_cells:
+        #         if i not in self.safes:
+        #             self.mark_safe(i)
 
-        if len(neigbor_cells) == count:
-            for i in neigbor_cells:
-                if i not in self.mines:
-                    self.mark_mine(i)
-        print(f'mines: {self.mines}')
+        # if len(neigbor_cells) == count:
+        #     for i in neigbor_cells:
+        #         if i not in self.mines:
+        #             self.mark_mine(i)
 
-        raise NotImplementedError
+        print(f'knowledge base at the end of the method (length {len(self.knowledge)}):')
+        for sentence in self.knowledge:
+            print(sentence)
 
     def make_safe_move(self):
         """
