@@ -166,8 +166,12 @@ class MinesweeperAI():
         """
         self.mines.add(cell)
         for sentence in self.knowledge:
-            sentence.cells.remove(cell)
-            sentence.count -= 1
+            print(f'cell in sentence.cells: {cell in sentence.cells}')
+            if cell in sentence.cells:
+                sentence.cells.remove(cell)
+                sentence.count -= 1
+            else:
+                print('cell is not in sentence.cells')
 
     def mark_safe(self, cell):
         """
@@ -176,8 +180,6 @@ class MinesweeperAI():
         """
         self.safes.add(cell)
         for sentence in self.knowledge:
-            print(f'sentence.cells: {sentence.cells}')
-            print(f'cell: {cell}')
             print(f'cell in sentence.cells: {cell in sentence.cells}')
             if cell in sentence.cells:
                 sentence.cells.remove(cell)
@@ -195,7 +197,7 @@ class MinesweeperAI():
             3) add a new sentence to the AI's knowledge base
                based on the value of `cell` and `count`
         """
-        """ /TODO
+        """ /TODO:
             4) mark any additional cells as safe or as mines
                if it can be concluded based on the AI's knowledge base
             5) add any new sentences to the AI's knowledge base
@@ -206,23 +208,36 @@ class MinesweeperAI():
         self.mark_safe(cell)
 
         neigbor_cells = set((x, y)
-            for x in range(max(0, cell[0] - 1), min(8, cell[0] + 2))    # +1 for one line down and +1 as per range spec
+            for x in range(max(0, cell[0] - 1), min(8, cell[0] + 2))    # +1 for one line down, +1 as per range spec
             for y in range(max(0, cell[1] - 1), min(8, cell[1] + 2))
         ) - {cell}
+
+        for i in self.safes:
+            if i in neigbor_cells:
+                neigbor_cells.remove(i)
+
         if neigbor_cells:
-            new_sentence = Sentence(neigbor_cells, count)
-            self.knowledge.append(new_sentence)
+            if count == 0:
+                for i in neigbor_cells:
+                    if i not in self.safes:
+                        self.mark_safe(i)
+            elif len(neigbor_cells) == count:
+                for i in neigbor_cells:
+                    if i not in self.mines:
+                        self.mark_mine(i)
+            else:
+                new_sentence = Sentence(neigbor_cells, count)
+                if new_sentence not in self.knowledge:
+                    self.knowledge.append(new_sentence)
+
+        for i in range(len(self.knowledge)):
+            if self.knowledge[i].count < 1:
+                for cell in self.knowledge[i].cells:
+                    self.knowledge[i].mark_safe(cell)
+                self.knowledge.remove(self.knowledge[i])
+    
+        print('add_knowledge finished')
         
-        if count == 0:
-            for i in neigbor_cells:
-                if i not in self.safes:
-                    self.mark_safe(i)
-
-        if len(neigbor_cells) == count:
-            for i in neigbor_cells:
-                if i not in self.mines:
-                    self.mark_mine(i)
-
     def make_safe_move(self):
         """
         Returns a safe cell to choose on the Minesweeper board.
