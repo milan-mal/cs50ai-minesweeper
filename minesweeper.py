@@ -183,6 +183,8 @@ class MinesweeperAI():
             print(f'cell in sentence.cells: {cell in sentence.cells}')
             if cell in sentence.cells:
                 sentence.cells.remove(cell)
+                if len(sentence.cells) < 1:
+                    self.knowledge.remove(sentence)
             else:
                 print('cell is not in sentence.cells')
 
@@ -230,12 +232,41 @@ class MinesweeperAI():
                 if new_sentence not in self.knowledge:
                     self.knowledge.append(new_sentence)
 
-        for i in range(len(self.knowledge)):
+        # 4) mark any additional cells as safe or as mines
+        #    if it can be concluded based on the AI's knowledge base:
+
+        for i in range(len(self.knowledge[:]) - 1):
             if self.knowledge[i].count < 1:
                 for cell in self.knowledge[i].cells:
-                    self.knowledge[i].mark_safe(cell)
+                    if cell not in self.safes:
+                        self.knowledge[i].mark_safe(cell)
                 self.knowledge.remove(self.knowledge[i])
-    
+            elif self.knowledge[i].count == len(self.knowledge[i].cells):
+                for cell in self.knowledge[i].cells:
+                    if cell not in self.mines:
+                        self.knowledge[i].mark_mine(cell)
+                self.knowledge.remove(self.knowledge[i])
+
+        # 5) add any new sentences to the AI's knowledge base
+        #    if they can be inferred from existing knowledge
+
+        print('knowledge:')
+        for sentence in self.knowledge:
+            print(sentence)
+
+        # /TODO: process knowledge with 1 cell and 1 mine (like {(7, 5)} = 1)
+
+        knowledge_max_index = len(self.knowledge) - 1
+        # for i in range(knowledge_max_index):
+            # if self.knowledge[i].cells > self.knowledge[i + 1].cells:
+            #     print('i+1 is a subset of i')
+            #     if self.knowledge[i].count > self.knowledge[i + 1].count:
+            #         self.knowledge.append(Sentence(self.knowledge[i].cells - self.knowledge[i + 1].cells, self.knowledge[i].count - self.knowledge[i + 1].count))
+
+        print('knowledge:')
+        for sentence in self.knowledge:
+            print(sentence)
+
         print('add_knowledge finished')
         
     def make_safe_move(self):

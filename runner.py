@@ -200,6 +200,7 @@ while True:
             revealed = set()
             flags = set()
             lost = False
+            game.print()
             continue
 
         # User-made move
@@ -210,6 +211,7 @@ while True:
                             and (i, j) not in flags
                             and (i, j) not in revealed):
                         move = (i, j)
+
 
     # Make move and update AI knowledge
     if move:
