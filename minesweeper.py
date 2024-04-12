@@ -248,16 +248,21 @@ class MinesweeperAI():
         for sentence in self.knowledge:
             print(sentence)
 
-        # /TODO: remove duplicates
-
         knowledge_max_i = len(self.knowledge) - 1
         for i in range(knowledge_max_i):
             for j in range(i + 1, knowledge_max_i):
                 if self.knowledge[i].cells > self.knowledge[j].cells:
-                    print(f'sentence {j} is a subset of {i}')
                     if self.knowledge[i].count > self.knowledge[j].count:
-                        print(f'{j} count is smaller than {i}')
-                        self.knowledge.append(Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count))
+                        print(f'sentence {j} is a subset of {i} AND {j} count is smaller than {i}')
+                        new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
+                        if new_sentence not in self.knowledge:  # to avoid duplicates
+                            self.knowledge.append(new_sentence)
+                elif self.knowledge[i].cells < self.knowledge[j].cells:
+                    if self.knowledge[i].count < self.knowledge[j].count:
+                        print(f'sentence {i} is a subset of {j} AND {i} count is smaller than {j}')
+                        new_sentence = Sentence(self.knowledge[j].cells - self.knowledge[i].cells, self.knowledge[j].count - self.knowledge[i].count)
+                        if new_sentence not in self.knowledge:  # to avoid duplicates
+                            self.knowledge.append(new_sentence)
 
         print('knowledge:')
         for sentence in self.knowledge:
