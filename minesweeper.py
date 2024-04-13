@@ -238,38 +238,24 @@ class MinesweeperAI():
                 for cell in knowledge_copy[i].cells:
                     if cell not in self.mines:
                         knowledge_copy[i].mark_mine(cell)
-                print(f'knowledge_copy[{i}]: {knowledge_copy[i]}')
                 self.knowledge.remove(knowledge_copy[i])
 
         # 5) add any new sentences to the AI's knowledge base
         #    if they can be inferred from existing knowledge
-
-        print('knowledge:')
-        for sentence in self.knowledge:
-            print(sentence)
 
         knowledge_max_i = len(self.knowledge) - 1
         for i in range(knowledge_max_i):
             for j in range(i + 1, knowledge_max_i):
                 if self.knowledge[i].cells > self.knowledge[j].cells:
                     if self.knowledge[i].count > self.knowledge[j].count:
-                        print(f'sentence {j} is a subset of {i} AND {j} count is smaller than {i}')
                         new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
                         if new_sentence not in self.knowledge:  # to avoid duplicates
                             self.knowledge.append(new_sentence)
                 elif self.knowledge[i].cells < self.knowledge[j].cells:
                     if self.knowledge[i].count < self.knowledge[j].count:
-                        print(f'sentence {i} is a subset of {j} AND {i} count is smaller than {j}')
                         new_sentence = Sentence(self.knowledge[j].cells - self.knowledge[i].cells, self.knowledge[j].count - self.knowledge[i].count)
                         if new_sentence not in self.knowledge:  # to avoid duplicates
                             self.knowledge.append(new_sentence)
-
-        print('knowledge:')
-        for sentence in self.knowledge:
-            print(sentence)
-
-        print('add_knowledge finished')
-        print('-------------------------')
         
     def make_safe_move(self):
         """
@@ -282,8 +268,9 @@ class MinesweeperAI():
         """
 
         safes_not_moves = self.safes - self.moves_made
+        print(f'safes_not_moves:{safes_not_moves}')
         if safes_not_moves:
-            return safes_not_moves[0]
+            return safes_not_moves.pop()
         else:
             return None
 
@@ -295,11 +282,12 @@ class MinesweeperAI():
             2) are not known to be mines
         """
 
-        not_move_not_mine = set()
-        print(f'mines: {self.mines}')
-        print(f'moves_made: {self.moves_made}')
+        not_move_not_mine = set((x, y)
+            for x in range(self.height)
+            for y in range(self.width)
+        ) - self.mines - self.moves_made
 
         if not_move_not_mine:
-            return not_move_not_mine[0]
+            return not_move_not_mine.pop()
         else:
             return None
