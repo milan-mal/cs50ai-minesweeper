@@ -108,7 +108,7 @@ class Sentence():
         if(len(self.cells) == self.count):
             return self.cells
         else:
-            return None
+            return set()
             
 
     def known_safes(self):
@@ -118,7 +118,7 @@ class Sentence():
         if(self.count == 0):
             return self.cells
         else:
-            return None
+            return set()
 
     def mark_mine(self, cell):
         """
@@ -197,16 +197,24 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
+
+        print(f'{cell}, {count}')
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
 
         neigbor_cells = set((x, y)
-            for x in range(max(0, cell[0] - 1), min(8, cell[0] + 2))    # +1 for one line down, +1 as per range spec
-            for y in range(max(0, cell[1] - 1), min(8, cell[1] + 2))
+            for x in range(max(0, cell[0] - 1), min(self.height, cell[0] + 2))    # +1 for one line down, +1 as per range spec
+            for y in range(max(0, cell[1] - 1), min(self.width, cell[1] + 2))
         ) - {cell}
 
+        # remove known safes from the neighbor cells
         for i in self.safes:
+            if i in neigbor_cells:
+                neigbor_cells.remove(i)
+
+        # remove knowns mines from the neighbor cells
+        for i in self.mines:
             if i in neigbor_cells:
                 neigbor_cells.remove(i)
 
@@ -221,41 +229,52 @@ class MinesweeperAI():
                         self.mark_mine(i)
             else:
                 new_sentence = Sentence(neigbor_cells, count)
+                print(f'new sentence: {new_sentence}')
                 if new_sentence not in self.knowledge:
                     self.knowledge.append(new_sentence)
 
         # 4) mark any additional cells as safe or as mines
         #    if it can be concluded based on the AI's knowledge base:
-
+        
         knowledge_copy = self.knowledge[:]
-        for i in range(len(self.knowledge) - 1):
-            if knowledge_copy[i].count < 1:
-                for cell in knowledge_copy[i].cells:
-                    if cell not in self.safes:
-                        knowledge_copy[i].mark_safe(cell)
-                self.knowledge.remove(knowledge_copy[i])
-            elif knowledge_copy[i].count == len(knowledge_copy[i].cells):
-                for cell in knowledge_copy[i].cells:
-                    if cell not in self.mines:
-                        knowledge_copy[i].mark_mine(cell)
-                self.knowledge.remove(knowledge_copy[i])
+        changes = 1
+        while changes > 0:
+            changes = 0
+            for i in range(len(self.knowledge) - 1):
+                if knowledge_copy[i].count < 1:
+                    for cell in knowledge_copy[i].cells:
+                        if cell not in self.safes:
+                            knowledge_copy[i].mark_safe(cell)
+                    self.knowledge.remove(knowledge_copy[i])
+                    changes += 1
+                elif knowledge_copy[i].count == len(knowledge_copy[i].cells):
+                    for cell in knowledge_copy[i].cells:
+                        if cell not in self.mines:
+                            knowledge_copy[i].mark_mine(cell)
+                    self.knowledge.remove(knowledge_copy[i])
+                    changes += 1
 
         # 5) add any new sentences to the AI's knowledge base
         #    if they can be inferred from existing knowledge
-
+        
         knowledge_max_i = len(self.knowledge) - 1
-        for i in range(knowledge_max_i):
-            for j in range(i + 1, knowledge_max_i):
-                if self.knowledge[i].cells > self.knowledge[j].cells:
-                    if self.knowledge[i].count > self.knowledge[j].count:
-                        new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
-                        if new_sentence not in self.knowledge:  # to avoid duplicates
-                            self.knowledge.append(new_sentence)
-                elif self.knowledge[i].cells < self.knowledge[j].cells:
-                    if self.knowledge[i].count < self.knowledge[j].count:
-                        new_sentence = Sentence(self.knowledge[j].cells - self.knowledge[i].cells, self.knowledge[j].count - self.knowledge[i].count)
-                        if new_sentence not in self.knowledge:  # to avoid duplicates
-                            self.knowledge.append(new_sentence)
+        changes = 1
+        while changes > 0:
+            changes = 0
+            for i in range(knowledge_max_i):
+                for j in range(i + 1, knowledge_max_i):
+                    if self.knowledge[i].cells > self.knowledge[j].cells:
+                        if self.knowledge[i].count > self.knowledge[j].count:
+                            new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
+                            if new_sentence not in self.knowledge:  # to avoid duplicates
+                                self.knowledge.append(new_sentence)
+                                changes += 1
+                    elif self.knowledge[i].cells < self.knowledge[j].cells:
+                        if self.knowledge[i].count < self.knowledge[j].count:
+                            new_sentence = Sentence(self.knowledge[j].cells - self.knowledge[i].cells, self.knowledge[j].count - self.knowledge[i].count)
+                            if new_sentence not in self.knowledge:  # to avoid duplicates
+                                self.knowledge.append(new_sentence)
+                                changes += 1
         
     def make_safe_move(self):
         """
