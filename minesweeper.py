@@ -198,7 +198,7 @@ class MinesweeperAI():
                if they can be inferred from existing knowledge
         """
 
-        print(f'{cell}, {count}')
+        print(f'add_knowledge: {cell}, {count}')
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
@@ -217,6 +217,7 @@ class MinesweeperAI():
         for i in self.mines:
             if i in neighbor_cells:
                 neighbor_cells.remove(i)
+                count -= 1
 
         if neighbor_cells:
             if count == 0:
