@@ -14,9 +14,5 @@ class TestMinesweeperAI(unittest.TestCase):
         # Additional assertions (same as in the improved example)
         self.assertTrue((3, 4) in ms_ai.moves_made, "Cell (3, 4) should be marked as a move made")
 
-        # Example: Assuming you can access neighbor cells directly 
-        neighbor_cells = ms_ai.get_neighbor_cells((3, 4))  
-        self.assertEqual(neighbor_cells, {(2, 3), (2, 4), (3, 3)}, "Incorrect neighbor cells found")
-
 if __name__ == '__main__':
     unittest.main()

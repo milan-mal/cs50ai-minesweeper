@@ -203,32 +203,32 @@ class MinesweeperAI():
         self.moves_made.add(cell)
         self.mark_safe(cell)
 
-        neigbor_cells = set((x, y)
+        neighbor_cells = set((x, y)
             for x in range(max(0, cell[0] - 1), min(self.height, cell[0] + 2))    # +1 for one line down, +1 as per range spec
             for y in range(max(0, cell[1] - 1), min(self.width, cell[1] + 2))
         ) - {cell}
 
         # remove known safes from the neighbor cells
         for i in self.safes:
-            if i in neigbor_cells:
-                neigbor_cells.remove(i)
+            if i in neighbor_cells:
+                neighbor_cells.remove(i)
 
         # remove knowns mines from the neighbor cells
         for i in self.mines:
-            if i in neigbor_cells:
-                neigbor_cells.remove(i)
+            if i in neighbor_cells:
+                neighbor_cells.remove(i)
 
-        if neigbor_cells:
+        if neighbor_cells:
             if count == 0:
-                for i in neigbor_cells:
+                for i in neighbor_cells:
                     if i not in self.safes:
                         self.mark_safe(i)
-            elif len(neigbor_cells) == count:
-                for i in neigbor_cells:
+            elif len(neighbor_cells) == count:
+                for i in neighbor_cells:
                     if i not in self.mines:
                         self.mark_mine(i)
             else:
-                new_sentence = Sentence(neigbor_cells, count)
+                new_sentence = Sentence(neighbor_cells, count)
                 print(f'new sentence: {new_sentence}')
                 if new_sentence not in self.knowledge:
                     self.knowledge.append(new_sentence)
