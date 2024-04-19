@@ -21,5 +21,17 @@ class TestMinesweeperAI(unittest.TestCase):
         s = minesweeper.Sentence({(0, 3), (1, 2), (1, 3)}, 1)
         self.assertTrue(s in ms_ai.knowledge, f"Did not find sentence {s}")
 
+    def test_add_knowledge_infer_mine(self):
+        """MinesweeperAI.add_knowledge can infer mine when given new information"""
+        ai = minesweeper.MinesweeperAI(height=4, width=5)
+        ai.add_knowledge((2, 4), 1)
+        ai.add_knowledge((2, 3), 1)
+        ai.add_knowledge((1, 4), 0)
+        ai.add_knowledge((3, 2), 0)
+        expected = {(3, 4)}
+        result = ai.mines
+        if expected != result:
+            self.assertEqual(str(expected), str(result), f'expected {expected}, not {result}')
+
 if __name__ == '__main__':
     unittest.main()
