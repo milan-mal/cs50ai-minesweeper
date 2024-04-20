@@ -33,5 +33,15 @@ class TestMinesweeperAI(unittest.TestCase):
         if expected != result:
             self.assertEqual(str(expected), str(result), f'expected {expected}, not {result}')
 
+    def test_add_knowledge_infer_mines_multiple(self):
+        """MinesweeperAI.add_knowledge can infer multiple mines when given new information"""
+        ai = minesweeper.MinesweeperAI(height=4, width=5)
+        ai.add_knowledge((2, 0), 2)
+        ai.add_knowledge((3, 1), 0)
+        expected = {(1, 0), (1, 1)}
+        result = ai.mines
+        if expected != result:
+            self.assertEqual(str(expected), str(result), f'expected {expected}, not {result}')
+
 if __name__ == '__main__':
     unittest.main()
