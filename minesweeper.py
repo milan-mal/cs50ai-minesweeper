@@ -293,6 +293,7 @@ class MinesweeperAI():
                                 self.knowledge.remove(self.knowledge[j + 1])
                                 changes += 1
 
+        print(f'safes: {self.safes}')
         print(f'mines: {self.mines}')
         print('knowledge:')
         for s in self.knowledge:

@@ -43,5 +43,18 @@ class TestMinesweeperAI(unittest.TestCase):
         if expected != result:
             self.assertEqual(str(expected), str(result), f'expected {expected}, not {result}')
 
+    def test_add_knowledge_infer_safes(self):
+        """MinesweeperAI.add_knowledge can infer safe cells when given new information"""
+        ai = minesweeper.MinesweeperAI(height=4, width=5)
+        ai.add_knowledge((0, 1), 1)
+        ai.add_knowledge((1, 0), 1)
+        ai.add_knowledge((1, 2), 1)
+        ai.add_knowledge((3, 1), 0)
+        ai.add_knowledge((0, 4), 0)
+        ai.add_knowledge((3, 4), 0)
+        safes = [(0, 0), (0, 2)]
+        for safe in safes:
+            self.assertTrue(safe in ai.safes, f"Did not find safe {safe}")
+
 if __name__ == '__main__':
     unittest.main()
