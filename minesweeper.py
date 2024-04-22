@@ -106,17 +106,16 @@ class Sentence():
         """
         Returns the set of all cells in self.cells known to be mines.
         """
-        if(len(self.cells) == self.count):
+        if (len(self.cells) == self.count):
             return self.cells
         else:
             return set()
             
-
     def known_safes(self):
         """
         Returns the set of all cells in self.cells known to be safe.
         """
-        if(self.count == 0):
+        if (self.count == 0):
             return self.cells
         else:
             return set()
@@ -126,7 +125,7 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be a mine.
         """
-        if(cell in self.cells):
+        if (cell in self.cells):
             self.cells = self.cells - {cell}
             self.count -= 1
 
@@ -135,7 +134,7 @@ class Sentence():
         Updates internal knowledge representation given the fact that
         a cell is known to be safe.
         """
-        if(cell in self.cells):
+        if (cell in self.cells):
             self.cells = self.cells - {cell}
 
 
@@ -203,9 +202,10 @@ class MinesweeperAI():
         self.mark_safe(cell)
 
         neighbor_cells = set((x, y)
-            for x in range(max(0, cell[0] - 1), min(self.height, cell[0] + 2))    # +1 for one line down, +1 as per range spec
-            for y in range(max(0, cell[1] - 1), min(self.width, cell[1] + 2))
-        ) - {cell}
+                             # +1 for one line down, +1 as per range spec:
+                             for x in range(max(0, cell[0] - 1), min(self.height, cell[0] + 2))
+                             for y in range(max(0, cell[1] - 1), min(self.width, cell[1] + 2))
+                             ) - {cell}
 
         # remove known safes from the neighbor cells
         for i in self.safes:
@@ -258,7 +258,8 @@ class MinesweeperAI():
                 for j in range(i + 1, knowledge_max_i + 1):
                     if self.knowledge[i].cells > self.knowledge[j].cells:
                         if self.knowledge[i].count >= self.knowledge[j].count:
-                            new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
+                            new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells,
+                                                    self.knowledge[i].count - self.knowledge[j].count)
                             if new_sentence not in self.knowledge:  # to avoid duplicates
                                 self.knowledge.append(new_sentence)
                                 self.knowledge.remove(self.knowledge[i])
@@ -267,7 +268,8 @@ class MinesweeperAI():
                 for j in range(i, knowledge_max_i):
                     if self.knowledge[i].cells < self.knowledge[j + 1].cells:
                         if self.knowledge[i].count <= self.knowledge[j + 1].count:
-                            new_sentence = Sentence(self.knowledge[j + 1].cells - self.knowledge[i].cells, self.knowledge[j + 1].count - self.knowledge[i].count)
+                            new_sentence = Sentence(self.knowledge[j + 1].cells - self.knowledge[i].cells,
+                                                    self.knowledge[j + 1].count - self.knowledge[i].count)
                             if new_sentence not in self.knowledge:  # to avoid duplicates
                                 self.knowledge.append(new_sentence)
                                 self.knowledge.remove(self.knowledge[j + 1])
@@ -297,10 +299,7 @@ class MinesweeperAI():
             2) are not known to be mines
         """
 
-        not_move_not_mine = set((x, y)
-            for x in range(self.height)
-            for y in range(self.width)
-        ) - self.mines - self.moves_made
+        not_move_not_mine = set((x, y) for x in range(self.height) for y in range(self.width)) - self.mines - self.moves_made
 
         if not_move_not_mine:
             return not_move_not_mine.pop()
