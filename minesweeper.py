@@ -1,3 +1,4 @@
+import copy
 import itertools
 import random
 
@@ -197,9 +198,6 @@ class MinesweeperAI():
             5) add any new sentences to the AI's knowledge base
                if they can be inferred from existing knowledge
         """
-
-        print('=======================')
-        print(f'add_knowledge: {cell}, {count}')
         
         self.moves_made.add(cell)
         self.mark_safe(cell)
@@ -231,7 +229,6 @@ class MinesweeperAI():
                         self.mark_mine(i)
             else:
                 new_sentence = Sentence(neighbor_cells, count)
-                print(f'new sentence: {new_sentence}')
                 if new_sentence not in self.knowledge:
                     self.knowledge.append(new_sentence)
 
@@ -241,30 +238,16 @@ class MinesweeperAI():
         changes = 1
         while changes > 0:
             changes = 0
-            knowledge_copy = self.knowledge[:]
+            knowledge_copy = copy.deepcopy(self.knowledge)
             for i in range(len(knowledge_copy)):
-                print('A1')
                 if knowledge_copy[i].count < 1:
                     for cell in knowledge_copy[i].cells:
                         if cell not in self.safes:
-                            self.safes.add(cell)
-                            print(f'knowledge_copy[{i}]: {knowledge_copy[i]}')
-                            print('A2')
-                    self.knowledge.remove(knowledge_copy[i])
-                    print('knowledge:')
-                    for s in self.knowledge:
-                        print(f' {s}')
-                    changes += 1
+                            self.mark_safe(cell)
                 elif knowledge_copy[i].count == len(knowledge_copy[i].cells):
                     for cell in knowledge_copy[i].cells:
                         if cell not in self.mines:
-                            print(f'knowledge_copy[{i}]: {knowledge_copy[i]}')
-                            self.mines.add(cell)
-                            print('B')
-                    self.knowledge.remove(knowledge_copy[i])
-                    print('knowledge:')
-                    for s in self.knowledge:
-                        print(f' {s}')
+                            self.mark_mine(cell)
                     changes += 1
 
             # 5) add any new sentences to the AI's knowledge base
@@ -277,7 +260,6 @@ class MinesweeperAI():
                         if self.knowledge[i].count >= self.knowledge[j].count:
                             new_sentence = Sentence(self.knowledge[i].cells - self.knowledge[j].cells, self.knowledge[i].count - self.knowledge[j].count)
                             if new_sentence not in self.knowledge:  # to avoid duplicates
-                                print('C')
                                 self.knowledge.append(new_sentence)
                                 self.knowledge.remove(self.knowledge[i])
                                 changes += 1
@@ -285,19 +267,11 @@ class MinesweeperAI():
                 for j in range(i, knowledge_max_i):
                     if self.knowledge[i].cells < self.knowledge[j + 1].cells:
                         if self.knowledge[i].count <= self.knowledge[j + 1].count:
-                            print('I')
                             new_sentence = Sentence(self.knowledge[j + 1].cells - self.knowledge[i].cells, self.knowledge[j + 1].count - self.knowledge[i].count)
                             if new_sentence not in self.knowledge:  # to avoid duplicates
-                                print('J')
                                 self.knowledge.append(new_sentence)
                                 self.knowledge.remove(self.knowledge[j + 1])
                                 changes += 1
-
-        print(f'safes: {self.safes}')
-        print(f'mines: {self.mines}')
-        print('knowledge:')
-        for s in self.knowledge:
-            print(f' {s}')
         
     def make_safe_move(self):
         """
@@ -310,7 +284,6 @@ class MinesweeperAI():
         """
 
         safes_not_moves = self.safes - self.moves_made
-        print(f'safes_not_moves:{safes_not_moves}')
         if safes_not_moves:
             return safes_not_moves.pop()
         else:
